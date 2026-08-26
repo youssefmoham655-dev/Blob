@@ -6,7 +6,6 @@ const canvas = document.getElementById("blob");
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 100);
 const renderer = new THREE.WebGLRenderer({canvas: canvas});
-renderer.setSize(500, 500);
 renderer.setSize(window.innerWidth, window.innerHeight);
 camera.position.z = 40;
 
@@ -29,9 +28,23 @@ syo.fillRect(0,0,256,256);
 const texture = new THREE.CanvasTexture(colorcanvas);
 
 const geometry = new THREE.SphereGeometry( 15, 32, 16 );
-const material = new THREE.MeshBasicMaterial({map: texture});
+const material = new THREE.MeshStandardMaterial({
+    map: texture,
+    roughness: 0.4,
+    metalness: 0.1
+});
 const mesh = new THREE.Mesh(geometry, material);
+
+
+// lights
+
+const amlight = new THREE.AmbientLight(0x404040);
+scene.add(amlight);
+
+const dirlight = new THREE.DirectionalLight(0x404040, 2.5);
+dirlight.position.set(2, 10, 7);
+scene.add(dirlight);
 
 scene.add(mesh);
 
-renderer.render(scene, camera)
+renderer.render(scene, camera);
