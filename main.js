@@ -41,6 +41,7 @@ const material = new THREE.MeshStandardMaterial({
 });
 const mesh = new THREE.Mesh(geometry, material);
 
+scene.add(mesh)
 
 // lights
 
@@ -81,7 +82,7 @@ function update_blob(volume){
         const uY = originalPositions[i * 3 + 1];
         const uZ = originalPositions[i * 3 + 2];
 
-        const noise2 = noise3D(uX * 0.08, uY * 0.08, uZ * 0.08);
+        const noise2 = noise(uX * 0.08, uY * 0.08, uZ * 0.08);
         const distortion = 1 + (noise2 * volume * 0.5);
 
         position_attribute.setXYZ(i, uX * distortion, uY * distortion, uZ * distortion);
@@ -91,6 +92,25 @@ function update_blob(volume){
     geometry.computeVertexNormals();
 }
 
-scene.add(mesh)
+function animate(){
+    requestAnimationFrame(animate);
 
-renderer.render(scene, camera);
+    if(analyzer) {
+        analyzer.getByteFrequencyData(dataArray);
+
+        let sum =0;
+        for(let i =0; i<dataArray.length; i++) {
+            sum += dataArray[i];
+        }
+
+        const average = sum / dataArray.length;
+
+        audioVolume = average / 128;
+    }
+
+    update_blob(audioVolume); 
+
+    mesh.rotation.y += 0.003;
+    renderer.render(scene, camera);
+}
+animate()
