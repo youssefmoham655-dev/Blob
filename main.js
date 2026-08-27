@@ -2,6 +2,8 @@ import * as THREE from "three";
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
+import { createNoise3D } from 'https://cdn.skypack.dev/simplex-noise@4.0.1';
+
 const canvas = document.getElementById("blob");
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 100);
@@ -27,7 +29,11 @@ syo.fillRect(0,0,256,256);
 
 const texture = new THREE.CanvasTexture(colorcanvas);
 
-const geometry = new THREE.SphereGeometry( 15, 32, 16 );
+const geometry = new THREE.SphereGeometry(15, 128, 128);
+
+// saving orginal positions to return to it again
+const originalPositions = geometry.attributes.position.array.slice();
+
 const material = new THREE.MeshStandardMaterial({
     map: texture,
     roughness: 0.4,
@@ -45,6 +51,25 @@ const dirlight = new THREE.DirectionalLight(0x404040, 2.5);
 dirlight.position.set(2, 10, 7);
 scene.add(dirlight);
 
-scene.add(mesh);
+const noise = createnoise3d();
+let analyzer, dataArray;
+let audioVolume = 0;
 
-renderer.render(scene, camera);
+async function setup_audio(){
+    try{
+        const requestt = await navigator.mediaDevices.getUserMedia({audio:true});
+        const ac = new (window.AudioContext || window.webkitAudioContext)();
+        const soundsource = ac.createMediaStreamSource(requestt);
+        analyzer = audioContext.createAnalyzer();
+        analyzer.fftSize = 64;
+        soundsource.connect(analyzer);
+
+        dataArray = new Unit8Array(analyzer.frequencyBinCount);
+    }
+
+    catch(err){
+        console.warn("Microphone access denied:", err);
+    }
+}
+
+setup_audio()
