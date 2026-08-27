@@ -1,9 +1,48 @@
 body{
     margin:0;
     padding:0;
+    overflow: hidden;
 }
 #blob{
-    width:500px;
-    height:500px;
+    width: 100vw;
+    width: 100vh;
     background-color:black;
+}
+#blob{
+    z-index:-1;
+    margin:0;
+}
+#warning{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width:1000px;
+    height:600px;
+    background-color:rgb(31, 30, 30);
+    z-index:1;
+    margin:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    font-size:15px;
+    font-family:'Courier New', Courier, monospace;
+    padding:10px;
+    color:white;
+    gap:100px;
+}
+#show-button{
+    width:300px;
+    background-color:rgb(31, 30, 30);
+    border:5px dotted white;
+    padding:15px;
+    color:white;
+    cursor:pointer;
+}
+.child{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
 }

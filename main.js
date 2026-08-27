@@ -11,7 +11,6 @@ const renderer = new THREE.WebGLRenderer({canvas: canvas});
 renderer.setSize(window.innerWidth, window.innerHeight);
 camera.position.z = 40;
 
-
 // gradient color
 
 const colorcanvas = document.createElement('canvas');
@@ -112,5 +111,13 @@ function animate(){
 
     mesh.rotation.y += 0.003;
     renderer.render(scene, camera);
+}
+const show_button = document.getElementById("show-button");
+const warning = document.getElementById("warning");
+
+if (show_button && warning) {
+    show_button.addEventListener("click", () => {
+        warning.style.display = "none";
+    });
 }
 animate()
