@@ -51,7 +51,7 @@ const dirlight = new THREE.DirectionalLight(0x404040, 2.5);
 dirlight.position.set(2, 10, 7);
 scene.add(dirlight);
 
-const noise = createnoise3d();
+const noise = createNoise3D();
 let analyzer, dataArray;
 let audioVolume = 0;
 
@@ -60,11 +60,11 @@ async function setup_audio(){
         const requestt = await navigator.mediaDevices.getUserMedia({audio:true});
         const ac = new (window.AudioContext || window.webkitAudioContext)();
         const soundsource = ac.createMediaStreamSource(requestt);
-        analyzer = audioContext.createAnalyzer();
+        analyzer = ac.createAnalyser();
         analyzer.fftSize = 64;
         soundsource.connect(analyzer);
 
-        dataArray = new Unit8Array(analyzer.frequencyBinCount);
+        dataArray = new Uint8Array(analyzer.frequencyBinCount);
     }
 
     catch(err){
@@ -73,3 +73,24 @@ async function setup_audio(){
 }
 
 setup_audio()
+
+function update_blob(volume){
+    const position_attribute = geometry.attributes.position;
+    for(let i = 0; i < position_attribute.count; i++){
+        const uX = originalPositions[i * 3];
+        const uY = originalPositions[i * 3 + 1];
+        const uZ = originalPositions[i * 3 + 2];
+
+        const noise2 = noise3D(uX * 0.08, uY * 0.08, uZ * 0.08);
+        const distortion = 1 + (noise2 * volume * 0.5);
+
+        position_attribute.setXYZ(i, uX * distortion, uY * distortion, uZ * distortion);
+    }
+
+    position_attribute.needsUpdate = true;
+    geometry.computeVertexNormals();
+}
+
+scene.add(mesh)
+
+renderer.render(scene, camera);
