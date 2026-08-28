@@ -59,10 +59,21 @@ let audioVolume = 0;
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
+
 window.addEventListener("mousemove", (event) =>{
     mouse.x = (event.clientX / window.innerWidth) * 2-1;
-    mouse.y = (event.clientY / window.innerHeight) * 2+1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2+1;
 });
+
+let isMouseDown = false;
+
+window.addEventListener("isMouseDown", () =>{
+    isMouseDown = true;
+})
+
+window.addEventListener("isMouseup", () =>{
+    isMouseDown = false;
+})
 
 async function setup_audio(){
     try{
@@ -93,13 +104,13 @@ function update_blob(volume, mousepoint){
         const uZ = originalPositions[i * 3 + 2];
 
         const noise2 = noise(uX * 0.08, uY * 0.08, uZ * 0.08);
-        const distortion = 1 + (noise2 * volume * 0.5);
+        let distortion = 1 + (noise2 * volume * 0.5);
 
-        if(mousepoint) {
+        if(mousepoint && isMouseDown) {
             v.set(uX,uY,uZ);
             const distance = v.distanceTo(mousepoint);
             const falloutdistortion = Math.max(0, 1- distance / 8);
-            distortion += falloff * 0.6;
+            distortion -= falloutdistortion * 0.6;
         }
 
         position_attribute.setXYZ(i, uX * distortion, uY * distortion, uZ * distortion);
@@ -125,7 +136,12 @@ function animate(){
         audioVolume = average / 128;
     }
 
-    update_blob(audioVolume); 
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObject(mesh);
+    const mousepoint = intersects.length > 0
+        ? mesh.worldToLocal(intersects[0].point.clone())
+        : null;
+    update_blob(audioVolume, mousepoint); 
 
     mesh.rotation.y += 0.003;
     renderer.render(scene, camera);
