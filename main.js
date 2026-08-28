@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js'; // i added this library as a precaution
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 import { createNoise3D } from 'https://cdn.skypack.dev/simplex-noise@4.0.1';
@@ -55,6 +55,15 @@ const noise = createNoise3D();
 let analyzer, dataArray;
 let audioVolume = 0;
 
+// interaction with mouse
+
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+window.addEventListener("mousemove", (event) =>{
+    mouse.x = (event.clientX / window.innerWidth) * 2-1;
+    mouse.y = (event.clientY / window.innerHeight) * 2+1;
+});
+
 async function setup_audio(){
     try{
         const requestt = await navigator.mediaDevices.getUserMedia({audio:true});
@@ -74,7 +83,9 @@ async function setup_audio(){
 
 setup_audio()
 
-function update_blob(volume){
+const v = new THREE.Vector3();
+
+function update_blob(volume, mousepoint){
     const position_attribute = geometry.attributes.position;
     for(let i = 0; i < position_attribute.count; i++){
         const uX = originalPositions[i * 3];
@@ -83,6 +94,13 @@ function update_blob(volume){
 
         const noise2 = noise(uX * 0.08, uY * 0.08, uZ * 0.08);
         const distortion = 1 + (noise2 * volume * 0.5);
+
+        if(mousepoint) {
+            v.set(uX,uY,uZ);
+            const distance = v.distanceTo(mousepoint);
+            const falloutdistortion = Math.max(0, 1- distance / 8);
+            distortion += falloff * 0.6;
+        }
 
         position_attribute.setXYZ(i, uX * distortion, uY * distortion, uZ * distortion);
     }
