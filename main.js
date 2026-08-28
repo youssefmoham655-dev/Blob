@@ -67,11 +67,11 @@ window.addEventListener("mousemove", (event) =>{
 
 let isMouseDown = false;
 
-window.addEventListener("isMouseDown", () =>{
+window.addEventListener("mousedown", () =>{
     isMouseDown = true;
 })
 
-window.addEventListener("isMouseup", () =>{
+window.addEventListener("mouseup", () =>{
     isMouseDown = false;
 })
 
@@ -148,10 +148,19 @@ function animate(){
 }
 const show_button = document.getElementById("show-button");
 const warning = document.getElementById("warning");
+const hello = document.getElementById("hello");
+const next = document.getElementById("next-button");
+
+if (next && hello) {
+    next.addEventListener("click", () => {
+        hello.style.visibility = "hidden";
+        warning.style.visibility = "visible";
+    });
+}
 
 if (show_button && warning) {
     show_button.addEventListener("click", () => {
-        warning.style.display = "none";
+        warning.style.visibility = "hidden";
     });
 }
-animate()
+animate();
